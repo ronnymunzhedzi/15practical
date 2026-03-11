@@ -17,7 +17,102 @@ public class Anagrams{
         generateLatexFile("theAnagrams.tex");
         System.out.println("\nDone! Output written to theAnagrams.tex");
     }
+  private static boolean processFile(String filename) {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(filename));
+            String line;
+            int lineCount = 0;
+           System.out.println("Reading file: " + filename);
+
+            while ((line = reader.readLine()) != null) {
+                lineCount++;
+                processLine(line);
+                if (lineCount % 1000 == 0) {
+                    System.out.println("  Processed " + lineCount + " lines...");
+                }
+            }
+            reader.close();
+            System.out.println("File processing complete! " + lineCount + " lines read.");
+            return true;
+
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found: " + filename);
+            System.out.println("Please ensure joyce1922_ulysses.txt is in the current directory.");
+            return false;
+        } catch (IOException e) {
+            System.out.println("Error reading file: " + e.getMessage());
+            return false;
+        }
+  }
+    private static void processLine(String line){
+
+        String[] words = line.split("\\s+");
+
+        for (String word : words) {
+            if (word.isEmpty()) continue;
+            String cleanedWord = cleanWord(word);
+            if (cleanedWord.isEmpty()) continue;
+            processWord(cleanedWord);
+        }
+    }
+    private static String cleanWord(String word) {
+        String cleaned = word.replaceAll("^[^a-zA-Z0-9']+|[^a-zA-Z0-9']+$", "");
+        cleaned = cleaned.toLowerCase();
+        if (cleaned.length() < 2) return "";
+        return cleaned;
+    }
+   private static void processWord(String word) {
+        totalWords++;
+      String signature = createSignature(word);
+     if (!anagramMap.containsKey(signature)) {
+        ArrayList<String> wordList = new ArrayList<>();
+            wordList.add(word);
+            anagramMap.put(signature, wordList);
+            uniqueWords++;
+  } else{
+       ArrayList<String> wordList = anagramMap.get(signature);
+            if (!wordList.contains(word)) {
+                wordList.add(word);
+            }
+        }
+    }
+  private static String createSignature(String word) {
+        char[] chars = word.toCharArray();
+        Arrays.sort(chars);
+        return new String(chars);
+    }
+   private static void printStatistics() {
+        System.out.println("\n=== STATISTICS ===");
+        System.out.println("Total words processed: " + totalWords);
+        System.out.println("Unique words: " + uniqueWords);
+        System.out.println("Unique signatures: " + anagramMap.size());
+     anagramGroups = 0;
+        int largestGroup = 0;
+        String largestSignature = "";
+
+        for (Map.Entry<String, ArrayList<String>> entry : anagramMap.entrySet()) {
+            int size = entry.getValue().size();
+            if (size > 1) {
+                anagramGroups++;
+                if (size > largestGroup) {
+                    largestGroup = size;
+                    largestSignature = entry.getKey();
+                }
+            }
+        }
+     System.out.println("Anagram groups found: " + anagramGroups);
+        System.out.println("Largest anagram group: " + largestGroup + " words");
+        if (largestGroup > 1) {
+            System.out.println("  Signature: " + largestSignature);
+            System.out.println("  Words: " + anagramMap.get(largestSignature));
+        }
+    }
   
+     
+  
+       
+       
+          
 
 
   
